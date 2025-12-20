@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 )
 
 const (
-	version         = "v0.1.0"
-	buildDate       = "2025-12-20"
-	versionTemplate = `Version: {{.Name}} {{.Version}} (%s)
+	version               = "v0.1.0"
+	buildDate             = "2025-12-20"
+	versionTemplateFormat = `Version: {{.Name}} {{.Version}} (%s)
 Runtime: %s (%s/%s)
-Organization: Thought2Code
-`
+Organization: Thought2Code`
+	ansiColorBrightGreen = "2"
 )
 
 var rootCmd = &cobra.Command{
@@ -31,10 +32,16 @@ func Execute() error {
 
 func init() {
 	rootCmd.Version = version
-	rootCmd.SetVersionTemplate(fmt.Sprintf(
-		versionTemplate,
+
+	versionTemplate := fmt.Sprintf(
+		versionTemplateFormat,
 		buildDate,
-		runtime.Version(), runtime.GOOS,
-		runtime.GOARCH),
-	)
+		runtime.Version(),
+		runtime.GOOS,
+		runtime.GOARCH)
+
+	color := lipgloss.Color(ansiColorBrightGreen)
+	versionStyle := lipgloss.NewStyle().Foreground(color).Render(versionTemplate)
+
+	rootCmd.SetVersionTemplate(versionStyle)
 }
