@@ -3,18 +3,17 @@ package cmd
 import (
 	"fmt"
 	"runtime"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
+	"github.com/thought2code/godev/internal/strconst"
 )
 
-const (
-	version               = "v0.1.0"
-	buildDate             = "2025-12-20"
-	versionTemplateFormat = `Version: {{.Name}} {{.Version}} (%s)
-Runtime: %s (%s/%s)
-Organization: Thought2Code`
-	ansiColorBrightGreen = "2"
+var (
+	errorStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color(strconst.AnsiColorBrightRed)).Render
+	successStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(strconst.AnsiColorBrightGreen)).Render
+	warningStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(strconst.AnsiColorBrightYellow)).Render
 )
 
 var rootCmd = &cobra.Command{
@@ -31,17 +30,14 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.Version = version
+	rootCmd.Version = strconst.ProjectVersion
 
 	versionTemplate := fmt.Sprintf(
-		versionTemplateFormat,
-		buildDate,
+		strconst.ProjectVersionTemplateFormat,
+		time.Now().UTC().Format(strconst.ProjectBuildTimeFormat),
 		runtime.Version(),
 		runtime.GOOS,
 		runtime.GOARCH)
 
-	color := lipgloss.Color(ansiColorBrightGreen)
-	versionStyle := lipgloss.NewStyle().Foreground(color).Render(versionTemplate)
-
-	rootCmd.SetVersionTemplate(versionStyle)
+	rootCmd.SetVersionTemplate(successStyle(versionTemplate))
 }
