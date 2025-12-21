@@ -3,11 +3,15 @@ package cmd
 import (
 	"embed"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/thought2code/godev/internal/osutil"
+	"github.com/thought2code/godev/internal/strconst"
 )
 
 // global variable to hold the embedded filesystem, initialized in main.go
@@ -28,66 +32,73 @@ var initCmd = &cobra.Command{
 		absPath, _ := filepath.Abs(projectName)
 
 		if projectName == CurrentDir {
-			fmt.Println(warningStyle("Warning: Initializing project in current directory may overwrite existing files."))
-			fmt.Print(warningStyle("Are you sure to continue? (Y/n): "))
+			fmt.Println(warningStyle(strconst.EmojiWarning + " Warning: Initializing project in current directory may overwrite existing files."))
+			fmt.Print(warningStyle(strconst.EmojiQuestion + " Are you sure to continue? (Y/n): "))
 
 			var confirm string
 			fmt.Scan(&confirm)
 			if confirm != "Y" && confirm != "y" {
-				fmt.Println(warningStyle("godev init cancelled"))
+				fmt.Println(warningStyle(strconst.EmojiWarning + " godev init cancelled"))
 				return
 			}
 
-			fmt.Println(warningStyle(fmt.Sprintf("Clearing directory %s", absPath)))
+			fmt.Println(warningStyle(fmt.Sprintf("%s Clearing directory %s", strconst.EmojiWarning, absPath)))
 			if err := osutil.ClearDir(absPath); err != nil {
-				fmt.Println(errorStyle(fmt.Sprintf("Failed to clear directory: %s, %s", absPath, err.Error())))
+				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to clear directory: %s, %s", strconst.EmojiFailure, absPath, err.Error())))
 				return
 			}
 		} else {
 			if _, err := os.Stat(absPath); err == nil {
-				fmt.Println(warningStyle(fmt.Sprintf("Project directory %s already exists", absPath)))
-				fmt.Print(warningStyle("Are you sure to overwrite the existing project? (Y/n): "))
+				fmt.Println(warningStyle(fmt.Sprintf("%s Project directory %s already exists", strconst.EmojiWarning, absPath)))
+				fmt.Print(warningStyle(strconst.EmojiQuestion + " Are you sure to overwrite the existing project? (Y/n): "))
 
 				var confirm string
 				fmt.Scan(&confirm)
 				if confirm != "Y" && confirm != "y" {
-					fmt.Println(warningStyle("godev init cancelled"))
+					fmt.Println(warningStyle(strconst.EmojiWarning + " godev init cancelled"))
 					return
 				}
 
-				fmt.Println(warningStyle(fmt.Sprintf("Overwriting project directory %s", absPath)))
+				fmt.Println(warningStyle(fmt.Sprintf("%s Overwriting project directory %s", strconst.EmojiWarning, absPath)))
 				if err := os.RemoveAll(absPath); err != nil {
-					fmt.Println(errorStyle(fmt.Sprintf("Failed to remove existing project directory: %s", err.Error())))
+					fmt.Println(errorStyle(fmt.Sprintf("%s Failed to remove existing project directory: %s", strconst.EmojiFailure, err.Error())))
 					return
 				}
 				if err := os.MkdirAll(absPath, 0o755); err != nil {
-					fmt.Println(errorStyle(fmt.Sprintf("Failed to create project directory: %s", err.Error())))
+					fmt.Println(errorStyle(fmt.Sprintf("%s Failed to create project directory: %s", strconst.EmojiFailure, err.Error())))
 					return
 				}
 			}
 		}
 
-		fmt.Printf("🚀 Creating Go project to: %s\n", absPath)
+		fmt.Printf("%s Creating Go project to: %s\n", strconst.EmojiRocket, absPath)
 
 		files := map[string]string{
-			"template/.vscode/launch.json.tpl":   ".vscode/launch.json",
-			"template/.vscode/settings.json.tpl": ".vscode/settings.json",
+			"template/.vscode/extensions.json.tpl": ".vscode/extensions.json",
+			"template/.vscode/launch.json.tpl":     ".vscode/launch.json",
+			"template/.vscode/settings.json.tpl":   ".vscode/settings.json",
+			"template/go.mod.tpl":                  "go.mod",
+		}
+
+		replacements := map[string]string{
+			"{{.ProjectName}}":     filepath.Base(absPath),
+			"{{.LatestGoVersion}}": fetchLatestGoVersion(),
 		}
 
 		for src, dest := range files {
-			if err := unpack(src, filepath.Join(absPath, dest)); err != nil {
-				fmt.Println(errorStyle(fmt.Sprintf("Failed to unpack template file %s: %s", src, err.Error())))
+			if err := unpack(src, filepath.Join(absPath, dest), replacements); err != nil {
+				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to unpack template file %s: %s", strconst.EmojiFailure, src, err.Error())))
 				return
 			}
-			fmt.Printf("✅ Created file: %s\n", filepath.Join(absPath, dest))
+			fmt.Printf("%s Created file: %s\n", strconst.EmojiSuccess, filepath.Join(absPath, dest))
 		}
 
-		fmt.Printf("✅ Project initialized successfully: %s\n", absPath)
+		fmt.Printf("%s Project initialized successfully: %s\n", strconst.EmojiSuccess, absPath)
 	},
 }
 
-func unpack(src, dest string) error {
-	data, err := TemplateFS.ReadFile(src)
+func unpack(src, dest string, replacements map[string]string) error {
+	bytes, err := TemplateFS.ReadFile(src)
 	if err != nil {
 		return fmt.Errorf("failed to read template file %s: %w", src, err)
 	}
@@ -97,11 +108,41 @@ func unpack(src, dest string) error {
 		return fmt.Errorf("failed to create directory for %s: %w", dest, err)
 	}
 
-	if err := os.WriteFile(dest, data, 0o644); err != nil {
+	// apply replacements
+	for key, value := range replacements {
+		bytes = []byte(strings.ReplaceAll(string(bytes), key, value))
+	}
+
+	if err := os.WriteFile(dest, bytes, 0o644); err != nil {
 		return fmt.Errorf("failed to write file %s: %w", dest, err)
 	}
 
 	return nil
+}
+
+func fetchLatestGoVersion() string {
+	// try to fetch from go.dev first
+	resp, err := http.Get("https://go.dev/VERSION?m=text")
+	if err != nil {
+		// if go.dev fails, try golang.org as fallback
+		resp, err = http.Get("https://golang.org/VERSION?m=text")
+		if err != nil {
+			fmt.Println(warningStyle(fmt.Sprintf("%s Failed to fetch latest Go version: %s", strconst.EmojiWarning, err.Error())))
+			fmt.Println(warningStyle(fmt.Sprintf("%s Falling back to latest Go version (%s) at the time of godev release", strconst.EmojiWarning, strconst.LatestGoVersionFallback)))
+			return strconst.LatestGoVersionFallback
+		}
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(errorStyle(fmt.Sprintf("%s Failed to read response body: %s", strconst.EmojiFailure, err.Error())))
+		fmt.Println(warningStyle(fmt.Sprintf("%s Falling back to latest Go version (%s) at the time of godev release", strconst.EmojiWarning, strconst.LatestGoVersionFallback)))
+		return strconst.LatestGoVersionFallback
+	}
+
+	latestGoVersion := strings.Split(strings.TrimSpace(string(body)), strconst.Newline)[0]
+	return strings.TrimPrefix(latestGoVersion, "go")
 }
 
 func init() {
