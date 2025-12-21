@@ -8,6 +8,8 @@ const (
 	RecommendedGolangciLintVersion = "v2.7.2"
 )
 
-const ProjectVersionTemplateFormat = `Version: {{.Name}} {{.Version}} (%s)
+const ProjectVersionTemplateFormat = `
+Version: {{.Name}} {{.Version}} (%s)
 Runtime: %s (%s/%s)
-Organization: Thought2Code`
+Organization: Thought2Code
+`

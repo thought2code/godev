@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
@@ -31,9 +32,11 @@ func Execute() error {
 func init() {
 	rootCmd.Version = strconst.ProjectVersion
 
+	versionTemplateFormat := strings.Trim(strconst.ProjectVersionTemplateFormat, strconst.Newline)
+	buildTime := time.Now().UTC().Format(strconst.ProjectBuildTimeFormat)
 	versionTemplate := fmt.Sprintf(
-		strconst.ProjectVersionTemplateFormat,
-		time.Now().UTC().Format(strconst.ProjectBuildTimeFormat),
+		versionTemplateFormat,
+		buildTime,
 		runtime.Version(),
 		runtime.GOOS,
 		runtime.GOARCH)
