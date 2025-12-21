@@ -19,7 +19,6 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "godev",
 	Short: "godev - A modern Go development kit",
-	Long:  "godev - A modern Go development kit, helps you to initialize a new Go project from template.",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},

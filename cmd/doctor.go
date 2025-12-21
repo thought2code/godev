@@ -138,7 +138,7 @@ func checkGoToolsVersion(toolName string) *checkResult {
 		return &checkResult{
 			passed:  false,
 			message: "Not installed",
-			advice:  fmt.Sprintf("Run 'godev tidy' to install %s version: %s", toolName, strconst.RecommendedGoimportsVersion),
+			advice:  fmt.Sprintf("Run 'godev tools install' to install %s version: %s", toolName, strconst.RecommendedGoimportsVersion),
 		}
 	}
 
