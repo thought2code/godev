@@ -10,30 +10,23 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/thought2code/godev/internal/osutil"
 	"github.com/thought2code/godev/internal/strconst"
 )
 
 // global variable to hold the embedded filesystem, initialized in main.go
 var TemplateFS embed.FS
 
-const CurrentDir = "."
-
 var initCmd = &cobra.Command{
-	Use:   "init [project_name]",
+	Use:   "init",
 	Short: "Initialize a new Go project from template",
-	Args:  cobra.MaximumNArgs(1),
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		projectName := CurrentDir
-		if len(args) > 0 {
-			projectName = args[0]
-		}
-
+		projectName := args[0]
 		absPath, _ := filepath.Abs(projectName)
 
-		if projectName == CurrentDir {
-			fmt.Println(warningStyle(strconst.EmojiWarning + " Warning: Initializing project in current directory may overwrite existing files."))
-			fmt.Print(warningStyle(strconst.EmojiQuestion + " Are you sure to continue? (Y/n): "))
+		if _, err := os.Stat(absPath); err == nil {
+			fmt.Println(warningStyle(fmt.Sprintf("%s Project directory %s already exists", strconst.EmojiWarning, absPath)))
+			fmt.Print(warningStyle(strconst.EmojiQuestion + " Are you sure to overwrite the existing project? (Y/n): "))
 
 			var confirm string
 			fmt.Scan(&confirm)
@@ -42,32 +35,14 @@ var initCmd = &cobra.Command{
 				return
 			}
 
-			fmt.Println(warningStyle(fmt.Sprintf("%s Clearing directory %s", strconst.EmojiWarning, absPath)))
-			if err := osutil.ClearDir(absPath); err != nil {
-				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to clear directory: %s, %s", strconst.EmojiFailure, absPath, err.Error())))
+			fmt.Println(warningStyle(fmt.Sprintf("%s Overwriting project directory %s", strconst.EmojiWarning, absPath)))
+			if err := os.RemoveAll(absPath); err != nil {
+				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to remove existing project directory: %s", strconst.EmojiFailure, err.Error())))
 				return
 			}
-		} else {
-			if _, err := os.Stat(absPath); err == nil {
-				fmt.Println(warningStyle(fmt.Sprintf("%s Project directory %s already exists", strconst.EmojiWarning, absPath)))
-				fmt.Print(warningStyle(strconst.EmojiQuestion + " Are you sure to overwrite the existing project? (Y/n): "))
-
-				var confirm string
-				fmt.Scan(&confirm)
-				if confirm != "Y" && confirm != "y" {
-					fmt.Println(warningStyle(strconst.EmojiWarning + " godev init cancelled"))
-					return
-				}
-
-				fmt.Println(warningStyle(fmt.Sprintf("%s Overwriting project directory %s", strconst.EmojiWarning, absPath)))
-				if err := os.RemoveAll(absPath); err != nil {
-					fmt.Println(errorStyle(fmt.Sprintf("%s Failed to remove existing project directory: %s", strconst.EmojiFailure, err.Error())))
-					return
-				}
-				if err := os.MkdirAll(absPath, 0o755); err != nil {
-					fmt.Println(errorStyle(fmt.Sprintf("%s Failed to create project directory: %s", strconst.EmojiFailure, err.Error())))
-					return
-				}
+			if err := os.MkdirAll(absPath, 0o755); err != nil {
+				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to create project directory: %s", strconst.EmojiFailure, err.Error())))
+				return
 			}
 		}
 
