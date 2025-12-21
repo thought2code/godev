@@ -17,9 +17,10 @@ import (
 var TemplateFS embed.FS
 
 var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize a new Go project from template",
-	Args:  cobra.ExactArgs(1),
+	Use:     "init <project-name>",
+	Short:   "Initialize a new Go project from template",
+	Example: "  godev init myproject",
+	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		projectName := args[0]
 		absPath, _ := filepath.Abs(projectName)

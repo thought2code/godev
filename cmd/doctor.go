@@ -13,8 +13,9 @@ import (
 )
 
 var doctorCmd = &cobra.Command{
-	Use:   "doctor",
-	Short: "Diagnose the health of the development environment",
+	Use:     "doctor",
+	Short:   "Diagnose the health of the development environment",
+	Example: "  godev doctor",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("🔍 Diagnosing the development environment...")
 		runDoctor()

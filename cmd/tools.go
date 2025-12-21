@@ -5,8 +5,9 @@ import (
 )
 
 var toolsCmd = &cobra.Command{
-	Use:   "tools",
-	Short: "Manage Go tools",
+	Use:     "tools <command>",
+	Short:   "Manage Go tools",
+	Example: "  godev tools install",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
