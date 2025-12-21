@@ -1,4 +1,6 @@
 package strconst
 
-const Empty = ""
-const Newline = "\n"
+const (
+	Empty   = ""
+	Newline = "\n"
+)
