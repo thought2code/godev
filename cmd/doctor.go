@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"debug/buildinfo"
 	"fmt"
 	"os"
+	"os/exec"
 	"runtime"
 
 	"github.com/spf13/cobra"
@@ -34,6 +36,18 @@ func runDoctor() {
 			name:   "Go version",
 			result: checkGoVersion(),
 		},
+		{
+			name:   "Go tools gofumpt",
+			result: checkGoToolsVersion("gofumpt"),
+		},
+		{
+			name:   "Go tools goimports",
+			result: checkGoToolsVersion("goimports"),
+		},
+		{
+			name:   "Go tools golangci-lint-v2",
+			result: checkGoToolsVersion("golangci-lint-v2"),
+		},
 	}
 
 	for _, c := range checks {
@@ -41,7 +55,7 @@ func runDoctor() {
 			fmt.Println(successStyle(fmt.Sprintf("%s %s (%s)", strconst.EmojiSuccess, c.name, c.result.message)))
 		} else {
 			fmt.Println(errorStyle(fmt.Sprintf("%s %s (%s)", strconst.EmojiFailure, c.name, c.result.message)))
-			fmt.Println(warningStyle(fmt.Sprintf("%s Tips: %s", strconst.EmojiTips, c.result.advice)))
+			fmt.Println(warningStyle(fmt.Sprintf("%s Remedy: %s", strconst.EmojiTips, c.result.advice)))
 		}
 	}
 }
@@ -110,10 +124,34 @@ func checkGoVersion() *checkResult {
 	if !passed {
 		advice = fmt.Sprintf("Upgrade Go to version %s or higher, download from https://golang.org/dl/", requiredGoVersion)
 	}
+
 	return &checkResult{
 		passed:  passed,
 		message: fmt.Sprintf("installed: %s, required: %s", installedGoVersion, requiredGoVersion),
 		advice:  advice,
+	}
+}
+
+func checkGoToolsVersion(toolName string) *checkResult {
+	path, err := exec.LookPath(toolName)
+	if err != nil {
+		return &checkResult{
+			passed:  false,
+			message: "Not installed",
+			advice:  fmt.Sprintf("Run 'godev tidy' to install %s version: %s", toolName, strconst.RecommendedGoimportsVersion),
+		}
+	}
+
+	version := "unknown"
+	info, err := buildinfo.ReadFile(path)
+	if err == nil {
+		version = info.Main.Version + " built with " + info.GoVersion
+	}
+
+	return &checkResult{
+		passed:  true,
+		message: fmt.Sprintf("installed version: %s", version),
+		advice:  strconst.Empty,
 	}
 }
 

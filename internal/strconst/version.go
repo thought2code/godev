@@ -3,8 +3,8 @@ package strconst
 const (
 	ProjectVersion                 = "v0.1.0"
 	LatestGoVersionFallback        = "1.25.5"
-	RecommendedGoFumptVersion      = "v0.9.2"
-	RecommendedGoImportsVersion    = "v0.40.0"
+	RecommendedGofumptVersion      = "v0.9.2"
+	RecommendedGoimportsVersion    = "v0.40.0"
 	RecommendedGolangciLintVersion = "v2.7.2"
 )
 
