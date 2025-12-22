@@ -27,6 +27,15 @@ var initCmd = &cobra.Command{
 		projectName := args[0]
 		absPath, _ := filepath.Abs(projectName)
 
+		fmt.Printf("%s Git repository (optional, e.g. github.com/thought2code/godev, press Enter to skip): ", strconst.EmojiQuestion)
+		gitRepo := filepath.Base(absPath)
+		if input, err := tui.ReadUserInput(); err != nil {
+			fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
+			return
+		} else if input != strconst.Empty {
+			gitRepo = input
+		}
+
 		if _, err := os.Stat(absPath); err == nil {
 			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Project directory %s already exists", strconst.EmojiWarning, absPath)))
 			fmt.Print(tui.WarnStyle(strconst.EmojiQuestion + " Are you sure to overwrite the existing project? (Y/n): "))
@@ -59,12 +68,14 @@ var initCmd = &cobra.Command{
 			"template/.vscode/extensions.json.tpl": ".vscode/extensions.json",
 			"template/.vscode/launch.json.tpl":     ".vscode/launch.json",
 			"template/.vscode/settings.json.tpl":   ".vscode/settings.json",
+			"template/.golangci.yml.tpl":           ".golangci.yml",
 			"template/go.mod.tpl":                  "go.mod",
 		}
 
 		replacements := map[string]string{
 			"{{.ProjectName}}":     filepath.Base(absPath),
 			"{{.LatestGoVersion}}": fetchLatestGoVersion(),
+			"{{.GitRepo}}":         strings.TrimPrefix(gitRepo, "https://"),
 		}
 
 		for src, dest := range files {
