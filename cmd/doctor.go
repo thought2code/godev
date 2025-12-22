@@ -8,8 +8,9 @@ import (
 	"runtime"
 
 	"github.com/spf13/cobra"
-	"github.com/thought2code/godev/internal/strconst"
 	"golang.org/x/mod/modfile"
+
+	"github.com/thought2code/godev/internal/strconst"
 )
 
 var doctorCmd = &cobra.Command{
@@ -17,12 +18,13 @@ var doctorCmd = &cobra.Command{
 	Short:   "Diagnose the health of the development environment",
 	Example: "  godev doctor",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("🔍 Diagnosing the development environment...")
 		runDoctor()
 	},
 }
 
 func runDoctor() {
+	fmt.Println("🔍 Diagnosing the development environment...")
+
 	type check struct {
 		name   string
 		result *checkResult

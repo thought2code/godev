@@ -1,0 +1,38 @@
+version: "2"
+
+formatters:
+  enable:
+    - goimports
+    - gofumpt
+
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/thought2code/godev
+    gofumpt:
+      extra-rules: true
+      module-path: github.com/thought2code/godev
+
+linters:
+  disable-all: true
+  enable:
+    - staticcheck
+
+issues:
+  exclude-rules:
+    - linters: [staticcheck]
+      text: "ST1000:"   # Package comment is detached
+    - linters: [staticcheck]
+      text: "ST1003:"   # Poorly chosen identifier
+    - linters: [staticcheck]
+      text: "ST1016:"   # Inconsistent receiver names
+    - linters: [staticcheck]
+      text: "ST1020:"   # Missing comment on exported field
+    - linters: [staticcheck]
+      text: "ST1021:"   # Missing comment on exported type
+    - linters: [staticcheck]
+      text: "ST1022:"   # Missing comment on exported func
+    - linters: [staticcheck]
+      text: "QF1001:"   # Apply De Morgan's law
+    - linters: [staticcheck]
+      text: "QF1008:"   # Omit embedded fields from selector

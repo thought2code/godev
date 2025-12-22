@@ -7,4 +7,5 @@ const (
 	EmojiWarning  = "⚠️"
 	EmojiQuestion = "❓"
 	EmojiTips     = "💡"
+	EmojiRunning  = "⏳"
 )

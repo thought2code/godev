@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"os/exec"
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/thought2code/godev/internal/osutil"
 	"github.com/thought2code/godev/internal/strconst"
 )
 
@@ -40,8 +40,7 @@ var toolsInstallCmd = &cobra.Command{
 
 func installGoTools(toolName string, toolVersion string) {
 	fmt.Printf("🔧 Installing %s %s...\n", toolName, toolVersion)
-	cmd := exec.Command("go", "install", fmt.Sprintf("%s@%s", toolName, toolVersion))
-	if err := cmd.Run(); err != nil {
+	if err := osutil.RunCommand("go", "install", fmt.Sprintf("%s@%s", toolName, toolVersion)); err != nil {
 		fmt.Println(errorStyle(fmt.Sprintf("%s Failed to install %s %s: %v", strconst.EmojiFailure, toolName, toolVersion, err)))
 		return
 	}
