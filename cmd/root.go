@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
+
 	"github.com/thought2code/godev/internal/strconst"
 )
 
@@ -21,7 +22,10 @@ var rootCmd = &cobra.Command{
 	Use:   "godev",
 	Short: "godev - A modern Go development kit",
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+		if err := cmd.Help(); err != nil {
+			fmt.Println(errorStyle(fmt.Sprintf("%s Failed to get help: %s", strconst.EmojiFailure, err.Error())))
+			return
+		}
 	},
 }
 

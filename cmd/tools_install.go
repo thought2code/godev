@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
 	"github.com/thought2code/godev/internal/osutil"
 	"github.com/thought2code/godev/internal/strconst"
 )
@@ -26,7 +27,11 @@ var toolsInstallCmd = &cobra.Command{
 		} else {
 			fmt.Print(warningStyle(strconst.EmojiTips + " No tool package path provided. Install recommended tools? (Y/n): "))
 			var confirm string
-			fmt.Scan(&confirm)
+			_, err := fmt.Scan(&confirm)
+			if err != nil {
+				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
+				return
+			}
 			if confirm != "Y" && confirm != "y" {
 				fmt.Println(warningStyle(strconst.EmojiWarning + " godev tools install cancelled"))
 				return
@@ -38,7 +43,7 @@ var toolsInstallCmd = &cobra.Command{
 	},
 }
 
-func installGoTools(toolName string, toolVersion string) {
+func installGoTools(toolName, toolVersion string) {
 	fmt.Printf("🔧 Installing %s %s...\n", toolName, toolVersion)
 	if err := osutil.RunCommand("go", "install", fmt.Sprintf("%s@%s", toolName, toolVersion)); err != nil {
 		fmt.Println(errorStyle(fmt.Sprintf("%s Failed to install %s %s: %v", strconst.EmojiFailure, toolName, toolVersion, err)))
