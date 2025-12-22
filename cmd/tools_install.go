@@ -27,13 +27,10 @@ var toolsInstallCmd = &cobra.Command{
 			installGoTools(toolPkgPath, strconst.RecommendedGofumptVersion)
 		} else {
 			fmt.Print(tui.WarnStyle(strconst.EmojiTips + " No tool package path provided. Install recommended tools? (Y/n): "))
-			var confirm string
-			_, err := fmt.Scan(&confirm)
-			if err != nil {
+			if confirm, err := tui.ReadUserInput(); err != nil {
 				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
 				return
-			}
-			if confirm != "Y" && confirm != "y" {
+			} else if confirm != "Y" && confirm != "y" {
 				fmt.Println(tui.WarnStyle(strconst.EmojiWarning + " godev tools install cancelled"))
 				return
 			}

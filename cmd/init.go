@@ -40,13 +40,10 @@ var initCmd = &cobra.Command{
 			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Project directory %s already exists", strconst.EmojiWarning, absPath)))
 			fmt.Print(tui.WarnStyle(strconst.EmojiQuestion + " Are you sure to overwrite the existing project? (Y/n): "))
 
-			var confirm string
-			_, err := fmt.Scan(&confirm)
-			if err != nil {
+			if confirm, err := tui.ReadUserInput(); err != nil {
 				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
 				return
-			}
-			if confirm != "Y" && confirm != "y" {
+			} else if confirm != "Y" && confirm != "y" {
 				fmt.Println(tui.WarnStyle(strconst.EmojiWarning + " godev init cancelled"))
 				return
 			}
