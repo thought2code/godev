@@ -6,16 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 
 	"github.com/thought2code/godev/internal/strconst"
-)
-
-var (
-	errorStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color(strconst.AnsiColorBrightRed)).Render
-	successStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(strconst.AnsiColorBrightGreen)).Render
-	warningStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(strconst.AnsiColorBrightYellow)).Render
+	"github.com/thought2code/godev/internal/tui"
 )
 
 var rootCmd = &cobra.Command{
@@ -23,7 +17,7 @@ var rootCmd = &cobra.Command{
 	Short: "godev - A modern Go development kit",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := cmd.Help(); err != nil {
-			fmt.Println(errorStyle(fmt.Sprintf("%s Failed to get help: %s", strconst.EmojiFailure, err.Error())))
+			fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to get help: %s", strconst.EmojiFailure, err.Error())))
 			return
 		}
 	},
@@ -45,5 +39,5 @@ func init() {
 		runtime.GOOS,
 		runtime.GOARCH)
 
-	rootCmd.SetVersionTemplate(successStyle(versionTemplate))
+	rootCmd.SetVersionTemplate(tui.SuccessStyle(versionTemplate))
 }

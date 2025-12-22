@@ -8,6 +8,7 @@ import (
 
 	"github.com/thought2code/godev/internal/osutil"
 	"github.com/thought2code/godev/internal/strconst"
+	"github.com/thought2code/godev/internal/tui"
 )
 
 var example = strings.Trim(`
@@ -25,15 +26,15 @@ var toolsInstallCmd = &cobra.Command{
 		if len(args) > 0 {
 			installGoTools(toolPkgPath, strconst.RecommendedGofumptVersion)
 		} else {
-			fmt.Print(warningStyle(strconst.EmojiTips + " No tool package path provided. Install recommended tools? (Y/n): "))
+			fmt.Print(tui.WarnStyle(strconst.EmojiTips + " No tool package path provided. Install recommended tools? (Y/n): "))
 			var confirm string
 			_, err := fmt.Scan(&confirm)
 			if err != nil {
-				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
+				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
 				return
 			}
 			if confirm != "Y" && confirm != "y" {
-				fmt.Println(warningStyle(strconst.EmojiWarning + " godev tools install cancelled"))
+				fmt.Println(tui.WarnStyle(strconst.EmojiWarning + " godev tools install cancelled"))
 				return
 			}
 			installGoTools(strconst.Gofumpt, strconst.RecommendedGofumptVersion)
@@ -46,10 +47,10 @@ var toolsInstallCmd = &cobra.Command{
 func installGoTools(toolName, toolVersion string) {
 	fmt.Printf("🔧 Installing %s %s...\n", toolName, toolVersion)
 	if err := osutil.RunCommand("go", "install", fmt.Sprintf("%s@%s", toolName, toolVersion)); err != nil {
-		fmt.Println(errorStyle(fmt.Sprintf("%s Failed to install %s %s: %v", strconst.EmojiFailure, toolName, toolVersion, err)))
+		fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to install %s %s: %v", strconst.EmojiFailure, toolName, toolVersion, err)))
 		return
 	}
-	fmt.Println(successStyle(fmt.Sprintf("%s Successfully installed %s %s", strconst.EmojiSuccess, toolName, toolVersion)))
+	fmt.Println(tui.SuccessStyle(fmt.Sprintf("%s Successfully installed %s %s", strconst.EmojiSuccess, toolName, toolVersion)))
 }
 
 func init() {

@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/thought2code/godev/internal/strconst"
+	"github.com/thought2code/godev/internal/tui"
 )
 
 // global variable to hold the embedded filesystem, initialized in main.go
@@ -27,27 +28,27 @@ var initCmd = &cobra.Command{
 		absPath, _ := filepath.Abs(projectName)
 
 		if _, err := os.Stat(absPath); err == nil {
-			fmt.Println(warningStyle(fmt.Sprintf("%s Project directory %s already exists", strconst.EmojiWarning, absPath)))
-			fmt.Print(warningStyle(strconst.EmojiQuestion + " Are you sure to overwrite the existing project? (Y/n): "))
+			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Project directory %s already exists", strconst.EmojiWarning, absPath)))
+			fmt.Print(tui.WarnStyle(strconst.EmojiQuestion + " Are you sure to overwrite the existing project? (Y/n): "))
 
 			var confirm string
 			_, err := fmt.Scan(&confirm)
 			if err != nil {
-				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
+				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
 				return
 			}
 			if confirm != "Y" && confirm != "y" {
-				fmt.Println(warningStyle(strconst.EmojiWarning + " godev init cancelled"))
+				fmt.Println(tui.WarnStyle(strconst.EmojiWarning + " godev init cancelled"))
 				return
 			}
 
-			fmt.Println(warningStyle(fmt.Sprintf("%s Overwriting project directory %s", strconst.EmojiWarning, absPath)))
+			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Overwriting project directory %s", strconst.EmojiWarning, absPath)))
 			if err := os.RemoveAll(absPath); err != nil {
-				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to remove existing project directory: %s", strconst.EmojiFailure, err.Error())))
+				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to remove existing project directory: %s", strconst.EmojiFailure, err.Error())))
 				return
 			}
 			if err := os.MkdirAll(absPath, 0o755); err != nil {
-				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to create project directory: %s", strconst.EmojiFailure, err.Error())))
+				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to create project directory: %s", strconst.EmojiFailure, err.Error())))
 				return
 			}
 		}
@@ -68,7 +69,7 @@ var initCmd = &cobra.Command{
 
 		for src, dest := range files {
 			if err := unpack(src, filepath.Join(absPath, dest), replacements); err != nil {
-				fmt.Println(errorStyle(fmt.Sprintf("%s Failed to unpack template file %s: %s", strconst.EmojiFailure, src, err.Error())))
+				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to unpack template file %s: %s", strconst.EmojiFailure, src, err.Error())))
 				return
 			}
 			fmt.Printf("%s Created file: %s\n", strconst.EmojiSuccess, filepath.Join(absPath, dest))
@@ -108,21 +109,21 @@ func fetchLatestGoVersion() string {
 		// if go.dev fails, try golang.org as fallback
 		resp, err = http.Get("https://golang.org/VERSION?m=text")
 		if err != nil {
-			fmt.Println(warningStyle(fmt.Sprintf("%s Failed to fetch latest Go version: %s", strconst.EmojiWarning, err.Error())))
-			fmt.Println(warningStyle(fmt.Sprintf("%s Falling back to latest Go version (%s) at the time of godev release", strconst.EmojiWarning, strconst.LatestGoVersionFallback)))
+			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Failed to fetch latest Go version: %s", strconst.EmojiWarning, err.Error())))
+			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Falling back to latest Go version (%s) at the time of godev release", strconst.EmojiWarning, strconst.LatestGoVersionFallback)))
 			return strconst.LatestGoVersionFallback
 		}
 	}
 	defer func() {
 		if closeErr := resp.Body.Close(); closeErr != nil {
-			fmt.Println(errorStyle(fmt.Sprintf("%s Failed to close response body: %s", strconst.EmojiFailure, closeErr.Error())))
+			fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to close response body: %s", strconst.EmojiFailure, closeErr.Error())))
 		}
 	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(errorStyle(fmt.Sprintf("%s Failed to read response body: %s", strconst.EmojiFailure, err.Error())))
-		fmt.Println(warningStyle(fmt.Sprintf("%s Falling back to latest Go version (%s) at the time of godev release", strconst.EmojiWarning, strconst.LatestGoVersionFallback)))
+		fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read response body: %s", strconst.EmojiFailure, err.Error())))
+		fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Falling back to latest Go version (%s) at the time of godev release", strconst.EmojiWarning, strconst.LatestGoVersionFallback)))
 		return strconst.LatestGoVersionFallback
 	}
 

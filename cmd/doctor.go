@@ -11,6 +11,7 @@ import (
 	"golang.org/x/mod/modfile"
 
 	"github.com/thought2code/godev/internal/strconst"
+	"github.com/thought2code/godev/internal/tui"
 )
 
 var doctorCmd = &cobra.Command{
@@ -55,10 +56,10 @@ func runDoctor() {
 
 	for _, c := range checks {
 		if c.result.passed {
-			fmt.Println(successStyle(fmt.Sprintf("%s %s (%s)", strconst.EmojiSuccess, c.name, c.result.message)))
+			fmt.Println(tui.SuccessStyle(fmt.Sprintf("%s %s (%s)", strconst.EmojiSuccess, c.name, c.result.message)))
 		} else {
-			fmt.Println(errorStyle(fmt.Sprintf("%s %s (%s)", strconst.EmojiFailure, c.name, c.result.message)))
-			fmt.Println(warningStyle(fmt.Sprintf("%s Remedy: %s", strconst.EmojiTips, c.result.advice)))
+			fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s %s (%s)", strconst.EmojiFailure, c.name, c.result.message)))
+			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Remedy: %s", strconst.EmojiTips, c.result.advice)))
 		}
 	}
 }
