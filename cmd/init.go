@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/thought2code/godev/internal/osutil"
 	"github.com/thought2code/godev/internal/strconst"
 	"github.com/thought2code/godev/internal/tui"
 )
@@ -18,73 +19,102 @@ import (
 // global variable to hold the embedded filesystem, initialized in main.go
 var TemplateFS embed.FS
 
+var initCmdExample = strings.Trim(`
+  godev init
+  godev init myproject
+`, strconst.Newline)
+
+const CurrentDir = "."
+
 var initCmd = &cobra.Command{
-	Use:     "init <project-name>",
+	Use:     "init [project-name]",
 	Short:   "Initialize a new Go project from template",
-	Example: "  godev init myproject",
-	Args:    cobra.ExactArgs(1),
+	Example: initCmdExample,
+	Args:    cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		projectName := args[0]
+		projectName := CurrentDir
+		if len(args) > 0 {
+			projectName = args[0]
+		}
 		absPath, _ := filepath.Abs(projectName)
 
-		fmt.Printf("%s Git repository (optional, e.g. github.com/thought2code/godev, press Enter to skip): ", strconst.EmojiQuestion)
-		gitRepo := filepath.Base(absPath)
-		if input, err := tui.ReadUserInput(); err != nil {
-			fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
+		if !initInDir(absPath) {
 			return
-		} else if input != strconst.Empty {
-			gitRepo = input
 		}
 
-		if _, err := os.Stat(absPath); err == nil {
-			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Project directory %s already exists", strconst.EmojiWarning, absPath)))
-			fmt.Print(tui.WarnStyle(strconst.EmojiQuestion + " Are you sure to overwrite the existing project? (Y/n): "))
-
-			if confirm, err := tui.ReadUserInput(); err != nil {
-				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
-				return
-			} else if confirm != "Y" && confirm != "y" {
-				fmt.Println(tui.WarnStyle(strconst.EmojiWarning + " godev init cancelled"))
-				return
-			}
-
-			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Overwriting project directory %s", strconst.EmojiWarning, absPath)))
-			if err := os.RemoveAll(absPath); err != nil {
-				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to remove existing project directory: %s", strconst.EmojiFailure, err.Error())))
-				return
-			}
-			if err := os.MkdirAll(absPath, 0o755); err != nil {
-				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to create project directory: %s", strconst.EmojiFailure, err.Error())))
-				return
-			}
+		gitRepo := userInputGitRepo()
+		if gitRepo == strconst.Empty {
+			gitRepo = filepath.Base(absPath)
 		}
 
 		fmt.Printf("%s Creating Go project to: %s\n", strconst.EmojiRocket, absPath)
-
-		files := map[string]string{
-			"template/.vscode/extensions.json.tpl": ".vscode/extensions.json",
-			"template/.vscode/launch.json.tpl":     ".vscode/launch.json",
-			"template/.vscode/settings.json.tpl":   ".vscode/settings.json",
-			"template/.golangci.yml.tpl":           ".golangci.yml",
-			"template/go.mod.tpl":                  "go.mod",
+		if !unpackTemplatesAndReplacePlaceholders(absPath, gitRepo) {
+			return
 		}
-
-		replacements := map[string]string{
-			"{{.ProjectName}}":     filepath.Base(absPath),
-			"{{.LatestGoVersion}}": fetchLatestGoVersion(),
-			"{{.GitRepo}}":         strings.TrimPrefix(gitRepo, "https://"),
-		}
-
-		for src, dest := range files {
-			if err := unpack(src, filepath.Join(absPath, dest), replacements); err != nil {
-				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to unpack template file %s: %s", strconst.EmojiFailure, src, err.Error())))
-				return
-			}
-			fmt.Printf("%s Created file: %s\n", strconst.EmojiSuccess, filepath.Join(absPath, dest))
-		}
-
 		fmt.Printf("%s Project initialized successfully: %s\n", strconst.EmojiSuccess, absPath)
 	},
+}
+
+func initInDir(dirAbsPath string) (kontinue bool) {
+	if osutil.CheckDirExist(dirAbsPath) {
+		if osutil.CheckDirEmpty(dirAbsPath) {
+			return true
+		} else {
+			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Project directory %s is not empty", strconst.EmojiWarning, dirAbsPath)))
+			fmt.Print(tui.WarnStyle(strconst.EmojiQuestion + " Are you sure to initialize the project in the specified directory? (Y/n): "))
+
+			if confirm, err := tui.ReadUserInput(); err != nil {
+				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
+				return false
+			} else if confirm != "Y" && confirm != "y" {
+				fmt.Println(tui.WarnStyle(strconst.EmojiWarning + " godev init cancelled"))
+				return false
+			} else {
+				return true
+			}
+		}
+	} else {
+		if err := os.MkdirAll(dirAbsPath, 0o755); err != nil {
+			fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to create project directory: %s", strconst.EmojiFailure, err.Error())))
+			return false
+		}
+		return true
+	}
+}
+
+func userInputGitRepo() string {
+	fmt.Printf("%s Git repository (optional, e.g. github.com/thought2code/godev, press Enter to skip): ", strconst.EmojiQuestion)
+	if input, err := tui.ReadUserInput(); err != nil {
+		fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
+		return strconst.Empty
+	} else {
+		return input
+	}
+}
+
+func unpackTemplatesAndReplacePlaceholders(dirAbsPath, gitRepo string) (success bool) {
+	files := map[string]string{
+		"template/.vscode/extensions.json.tpl": ".vscode/extensions.json",
+		"template/.vscode/launch.json.tpl":     ".vscode/launch.json",
+		"template/.vscode/settings.json.tpl":   ".vscode/settings.json",
+		"template/.golangci.yml.tpl":           ".golangci.yml",
+		"template/go.mod.tpl":                  "go.mod",
+	}
+
+	replacements := map[string]string{
+		"{{.ProjectName}}":     filepath.Base(dirAbsPath),
+		"{{.LatestGoVersion}}": fetchLatestGoVersion(),
+		"{{.GitRepo}}":         strings.TrimPrefix(gitRepo, "https://"),
+	}
+
+	for src, dest := range files {
+		if err := unpack(src, filepath.Join(dirAbsPath, dest), replacements); err != nil {
+			fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to unpack template file %s: %s", strconst.EmojiFailure, src, err.Error())))
+			return false
+		}
+		fmt.Printf("%s Created file: %s\n", strconst.EmojiSuccess, filepath.Join(dirAbsPath, dest))
+	}
+	return true
 }
 
 func unpack(src, dest string, replacements map[string]string) error {

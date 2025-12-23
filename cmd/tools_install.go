@@ -11,7 +11,7 @@ import (
 	"github.com/thought2code/godev/internal/tui"
 )
 
-var example = strings.Trim(`
+var toolsInstallCmdExample = strings.Trim(`
   godev tools install
   godev tools install golang.org/x/tools/cmd/goimports
 `, strconst.Newline)
@@ -19,7 +19,7 @@ var example = strings.Trim(`
 var toolsInstallCmd = &cobra.Command{
 	Use:     "install [tool-package-path]",
 	Short:   "Install Go tools",
-	Example: example,
+	Example: toolsInstallCmdExample,
 	Args:    cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		var toolPkgPath string

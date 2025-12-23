@@ -1,31 +1,20 @@
 package osutil
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
 )
 
-func ClearDir(dir string) error {
-	if dir == "" || dir == "/" || dir == "." || dir == ".." {
-		return fmt.Errorf("dir %s is not allowed to clear", dir)
-	}
-
+func CheckDirExist(dir string) bool {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		return nil
+		return false
 	}
+	return true
+}
 
+func CheckDirEmpty(dir string) bool {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return err
+		return false
 	}
-
-	for _, entry := range entries {
-		path := filepath.Join(dir, entry.Name())
-		if err := os.RemoveAll(path); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return len(entries) == 0
 }
