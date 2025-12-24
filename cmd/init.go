@@ -56,23 +56,34 @@ var initCmd = &cobra.Command{
 }
 
 func initInDir(dirAbsPath string) (kontinue bool) {
-	if osutil.CheckDirExist(dirAbsPath) {
-		if osutil.CheckDirEmpty(dirAbsPath) {
-			return true
-		} else {
-			fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Project directory %s is not empty", strconst.EmojiWarning, dirAbsPath)))
-			fmt.Print(tui.WarnStyle(strconst.EmojiQuestion + " Are you sure to initialize the project in the specified directory? (Y/n): "))
+	exist, err := osutil.CheckDirExist(dirAbsPath)
+	if err != nil {
+		fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to check directory: %s", strconst.EmojiFailure, err.Error())))
+		return false
+	}
 
-			if confirm, err := tui.ReadUserInput(); err != nil {
-				fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
-				return false
-			} else if confirm != "Y" && confirm != "y" {
-				fmt.Println(tui.WarnStyle(strconst.EmojiWarning + " godev init cancelled"))
-				return false
-			} else {
-				return true
-			}
+	if exist {
+		empty, err := osutil.CheckDirEmpty(dirAbsPath)
+		if err != nil {
+			fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to check if directory is empty: %s", strconst.EmojiFailure, err.Error())))
+			return false
 		}
+
+		if empty {
+			return true
+		}
+
+		fmt.Println(tui.WarnStyle(fmt.Sprintf("%s Project directory %s is not empty", strconst.EmojiWarning, dirAbsPath)))
+		fmt.Print(tui.WarnStyle(strconst.EmojiQuestion + " Are you sure to initialize the project in the specified directory? (Y/n): "))
+
+		if confirm, err := tui.ReadUserInput(); err != nil {
+			fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to read input: %s", strconst.EmojiFailure, err.Error())))
+			return false
+		} else if confirm != "Y" && confirm != "y" {
+			fmt.Println(tui.WarnStyle(strconst.EmojiWarning + " godev init cancelled"))
+			return false
+		}
+		return true
 	} else {
 		if err := os.MkdirAll(dirAbsPath, 0o755); err != nil {
 			fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to create project directory: %s", strconst.EmojiFailure, err.Error())))
