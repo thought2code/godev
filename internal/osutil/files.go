@@ -6,18 +6,17 @@ import (
 	"os"
 )
 
-func CheckDirExist(dir string) (bool, error) {
-	info, err := os.Stat(dir)
+func CheckExist(fileOrDir string) (bool, error) {
+	_, err := os.Stat(fileOrDir)
 	if err != nil {
-		// dir not exist
+		// file or dir not exist, this err is expected
 		if errors.Is(err, fs.ErrNotExist) {
 			return false, nil
 		}
-		// other error
+		// other unexpected error
 		return false, err
 	}
-	// dir exist
-	return info.IsDir(), nil
+	return true, nil
 }
 
 func CheckDirEmpty(dir string) (bool, error) {
@@ -29,7 +28,7 @@ func CheckDirEmpty(dir string) (bool, error) {
 }
 
 func RemoveDirIfExist(dir string) error {
-	exist, err := CheckDirExist(dir)
+	exist, err := CheckExist(dir)
 	if err != nil {
 		return err
 	}

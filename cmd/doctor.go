@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/modfile"
 
+	"github.com/thought2code/godev/internal/osutil"
 	"github.com/thought2code/godev/internal/strconst"
 	"github.com/thought2code/godev/internal/tui"
 )
@@ -71,7 +72,15 @@ type checkResult struct {
 }
 
 func checkGoModuleFile() *checkResult {
-	if _, err := os.Stat("go.mod"); os.IsNotExist(err) {
+	exist, err := osutil.CheckExist("go.mod")
+	if err != nil {
+		return &checkResult{
+			passed:  false,
+			message: err.Error(),
+			advice:  "Check if the go.mod file exists and readable",
+		}
+	}
+	if !exist {
 		return &checkResult{
 			passed:  false,
 			message: "The go.mod file does not exist",
@@ -87,7 +96,8 @@ func checkGoModuleFile() *checkResult {
 }
 
 func checkGoVersion() *checkResult {
-	if _, err := os.Stat("go.mod"); os.IsNotExist(err) {
+	checkGoModuleFileResult := checkGoModuleFile()
+	if !checkGoModuleFileResult.passed {
 		return &checkResult{
 			passed:  false,
 			message: "No go.mod file found, unable to check required Go version",

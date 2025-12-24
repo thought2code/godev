@@ -56,7 +56,7 @@ var initCmd = &cobra.Command{
 }
 
 func initInDir(dirAbsPath string) (kontinue bool) {
-	exist, err := osutil.CheckDirExist(dirAbsPath)
+	exist, err := osutil.CheckExist(dirAbsPath)
 	if err != nil {
 		fmt.Println(tui.ErrorStyle(fmt.Sprintf("%s Failed to check directory: %s", strconst.EmojiFailure, err.Error())))
 		return false

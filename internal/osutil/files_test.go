@@ -41,13 +41,21 @@ func TestCheckDirExist(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "path is a file not directory",
+			name: "file exists",
 			setup: func() string {
 				file := filepath.Join(tempDir, "test_file.txt")
 				if err := os.WriteFile(file, []byte("test"), 0o644); err != nil {
 					t.Fatalf("Failed to create test file: %v", err)
 				}
 				return file
+			},
+			want:    true,
+			wantErr: false,
+		},
+		{
+			name: "file does not exist",
+			setup: func() string {
+				return filepath.Join(tempDir, "non_existing_file.txt")
 			},
 			want:    false,
 			wantErr: false,
@@ -66,13 +74,13 @@ func TestCheckDirExist(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			path := tt.setup()
-			got, gotErr := CheckDirExist(path)
+			got, gotErr := CheckExist(path)
 			if (gotErr != nil) != tt.wantErr {
-				t.Errorf("CheckDirExist() failed, got unexpected error = %v", gotErr)
+				t.Errorf("CheckExist() failed, got unexpected error = %v", gotErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("CheckDirExist() failed, got = %v, want = %v", got, tt.want)
+				t.Errorf("CheckExist() failed, got = %v, want = %v", got, tt.want)
 			}
 		})
 	}
