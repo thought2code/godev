@@ -108,6 +108,7 @@ func unpackTemplatesAndReplacePlaceholders(dirAbsPath, gitRepo string) (success 
 		"template/.vscode/extensions.json.tpl": ".vscode/extensions.json",
 		"template/.vscode/launch.json.tpl":     ".vscode/launch.json",
 		"template/.vscode/settings.json.tpl":   ".vscode/settings.json",
+		"template/.gitignore.tpl":              ".gitignore",
 		"template/.golangci.yml.tpl":           ".golangci.yml",
 		"template/go.mod.tpl":                  "go.mod",
 	}
