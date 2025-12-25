@@ -1,5 +1,7 @@
 # godev 🚀
 
+[![Go Version](https://img.shields.io/badge/go-1.25+-blue.svg)](https://golang.org/dl/) [![Go Report Card](https://goreportcard.com/badge/github.com/thought2code/godev)](https://goreportcard.com/report/github.com/thought2code/godev) [![PkgGoDev](https://pkg.go.dev/badge/github.com/thought2code/godev)](https://pkg.go.dev/github.com/thought2code/godev)
+
 **Less boilerplate, more building.**
 The all-in-one command center and project scaffolder for modern Go development.
 
@@ -10,11 +12,11 @@ The all-in-one command center and project scaffolder for modern Go development.
 It provides a unified CLI to:
 1. **Manage**: A single entry point for project init, testing, linting, building, and releasing.
 2. **Diagnose**: A "Doctor" that doesn't just find issues, but understands Go development environments.
-3. **Scaffold**: Initialize modern Go project with preset template which already includes comprehensive pre-configuration.
+3. **Scaffold**: Initialize modern Go project with preset template and configuration.
 
 ## ✨ Key Features
 
-- 📦 **One-Stop Scaffolding**: Create Go projects following best practices (`.golangci.yml`, `.gitignore`, `go.mod`, etc.).
+- 📦 **One-Stop Scaffolding**: Create Go projects following best practices (`.golangci.yml`, `go.mod`, etc.).
 - 🩺 **Interactive Doctor**: Comprehensive health checks for your Go version, modules, and toolchain.
 - 🛠️ **Unified Workflow**: Integrated commands for unit and integration tests, stop remembering complex flags.
 - ⚙️ **Standardized Tooling**: Automatically set up VS Code settings, `gofumpt`, and `golangci-lint`.
@@ -104,13 +106,13 @@ myproject/
 
 ## 📚 Commands Reference
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `godev` | Show help information | `godev` |
-| `godev init [project]` | Initialize new Go project | `godev init myapp` |
-| `godev doctor` | Diagnose development environment | `godev doctor` |
-| `godev test unit` | Run unit tests | `godev test unit` |
-| `godev test integ` | Run integration tests | `godev test integ` |
+| Command                | Description                      | Example            |
+|------------------------|----------------------------------|--------------------|
+| `godev`                | Show help information            | `godev`            |
+| `godev init [project]` | Initialize new Go project        | `godev init myapp` |
+| `godev doctor`         | Diagnose development environment | `godev doctor`     |
+| `godev test unit`      | Run unit tests                   | `godev test unit`  |
+| `godev test integ`     | Run integration tests            | `godev test integ` |
 
 ## 🔧 Development Tools Integration
 
