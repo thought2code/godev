@@ -1,2 +1,5 @@
 # unit test coverage files
 coverage/
+
+# binary files
+*.exe

@@ -30,7 +30,7 @@ func Execute() error {
 func init() {
 	rootCmd.Version = strconst.ProjectVersion
 
-	versionTemplateFormat := strings.Trim(strconst.ProjectVersionTemplateFormat, strconst.Newline)
+	versionTemplateFormat := strings.Trim(strconst.ProjectVersionTemplateFormat, strconst.NewLine)
 	buildTime := time.Now().UTC().Format(strconst.ProjectBuildTimeFormat)
 	versionTemplate := fmt.Sprintf(
 		versionTemplateFormat,

@@ -7,7 +7,7 @@ The all-in-one command center and project scaffolder for modern Go development.
 
 ## 💡 Why godev?
 
-> "As a Go novice, I was once overwhelmed by the 'preliminary chores'. From choosing between `go fmt` and `gofumpt` to configuring `golangci-lint` and better project structures, various CLI commands like `gofumpt -w .`, `golangci-lint run ./...`, `go mod tidy`, etc. Every new project felt like a tedious loop of 'copy-paste' from the last one. I thought I need a tool that just worked and I don't like to use `Makefile`, so I built **godev**. It's born to free you from these chores, so you can focus on what matters: **writing your code.**
+> As a Go novice, I was once overwhelmed by the 'preliminary chores'. From choosing between `go fmt` and `gofumpt` to configuring `golangci-lint` and better project structures, various CLI commands like `gofumpt -w .`, `golangci-lint run ./...`, `go mod tidy`, etc. Every new project felt like a tedious loop of 'copy-paste' from the last one. I thought I need a tool that just worked and I don't like to use `Makefile`, so I built **godev**. It's born to free you from these chores, so you can focus on what matters: **writing your code.**
 
 It provides a unified CLI to:
 1. **Manage**: A single entry point for project init, testing, linting, building, and releasing.

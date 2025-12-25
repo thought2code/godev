@@ -22,7 +22,7 @@ var TemplateFS embed.FS
 var initCmdExample = strings.Trim(`
   godev init
   godev init myproject
-`, strconst.Newline)
+`, strconst.NewLine)
 
 const CurrentDir = "."
 
@@ -177,7 +177,7 @@ func fetchLatestGoVersion() string {
 		return strconst.LatestGoVersionFallback
 	}
 
-	latestGoVersion := strings.Split(strings.TrimSpace(string(body)), strconst.Newline)[0]
+	latestGoVersion := strings.Split(strings.TrimSpace(string(body)), strconst.NewLine)[0]
 	return strings.TrimPrefix(latestGoVersion, "go")
 }
 

@@ -21,7 +21,7 @@ var unitTestCmdExample = strings.Trim(`
   godev test unit -v -c
   godev test unit --html
   godev test unit -v --html
-`, strconst.Newline)
+`, strconst.NewLine)
 
 var (
 	verboseFlag    bool

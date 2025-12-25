@@ -13,7 +13,7 @@ import (
 var testCmdExample = strings.Trim(`
   godev test unit
   godev test integ
-`, strconst.Newline)
+`, strconst.NewLine)
 
 var testCmd = &cobra.Command{
 	Use:     "test",

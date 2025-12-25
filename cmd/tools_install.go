@@ -14,7 +14,7 @@ import (
 var toolsInstallCmdExample = strings.Trim(`
   godev tools install
   godev tools install golang.org/x/tools/cmd/goimports
-`, strconst.Newline)
+`, strconst.NewLine)
 
 var toolsInstallCmd = &cobra.Command{
 	Use:     "install [tool-package-path]",
