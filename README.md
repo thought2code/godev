@@ -1,18 +1,27 @@
-# godev 🚀 [![Go Version](https://img.shields.io/badge/go-1.25+-blue.svg)](https://golang.org/dl/)
+# godev 🚀
 
-A modern Go development kit that streamlines project setup, environment diagnostics, and development workflow.
+**Less boilerplate, more building.**
+The all-in-one command center and project scaffolder for modern Go development.
 
-## Features ✨
+## 💡 Why godev?
 
-- **Project Initialization**: Quickly scaffold new Go projects with best-practice templates
-- **Environment Diagnostics**: Comprehensive health checks for your Go development environment
-- **Modern Tooling**: Integrated with popular Go development tools
-- **Cross-Platform**: Works on Windows, macOS, and Linux
-- **Beautiful CLI**: Enhanced terminal user interface with colors and emojis
+> "As a Go novice, I was once overwhelmed by the 'preliminary chores'. From choosing between `go fmt` and `gofumpt` to configuring `golangci-lint` and better project structures, various CLI commands like `gofumpt -w .`, `golangci-lint run ./...`, `go mod tidy`, etc. Every new project felt like a tedious loop of 'copy-paste' from the last one. I thought I need a tool that just worked and I don't like to use `Makefile`, so I built **godev**. It's born to free you from these chores, so you can focus on what matters: **writing your code.**
 
-## Installation 📦
+It provides a unified CLI to:
+1. **Manage**: A single entry point for project init, testing, linting, building, and releasing.
+2. **Diagnose**: A "Doctor" that doesn't just find issues, but understands Go development environments.
+3. **Scaffold**: Initialize modern Go project with preset template which already includes comprehensive pre-configuration.
 
-### Using Go Install
+## ✨ Key Features
+
+- 📦 **One-Stop Scaffolding**: Create Go projects following best practices (`.golangci.yml`, `.gitignore`, `go.mod`, etc.).
+- 🩺 **Interactive Doctor**: Comprehensive health checks for your Go version, modules, and toolchain.
+- 🛠️ **Unified Workflow**: Integrated commands for unit and integration tests, stop remembering complex flags.
+- ⚙️ **Standardized Tooling**: Automatically set up VS Code settings, `gofumpt`, and `golangci-lint`.
+
+## 📦 Installation
+
+### Using Go Install (Recommended)
 ```bash
 go install github.com/thought2code/godev@latest
 ```
@@ -25,11 +34,14 @@ go build -o godev main.go
 ```
 
 ### Prerequisites
-- Go 1.25 or later
+- Go 1.25 or later (latest stable recommended)
 
-## Usage 🚀
+## 🚀 Usage
 
-### Initialize a New Project
+### 1. Initialize a New Project
+
+Don't waste time on folder structures.
+
 ```bash
 # Initialize in current directory
 godev init
@@ -48,7 +60,10 @@ The `init` command creates a new Go project with:
 - Latest Go module setup
 - Professional project structure
 
-### Environment Health Check
+### 2. Check Environment Health
+
+Is your `GOPATH` messed up? Are you missing tools?
+
 ```bash
 godev doctor
 ```
@@ -59,16 +74,19 @@ The `doctor` command diagnoses your development environment:
 - Verifies essential Go tools installation
 - Provides actionable remediation advice
 
-### Testing Framework
-```bash
-# Run unit tests
-godev test unit
+### 3. Smart Testing
 
-# Run integration tests  
-godev test integ
+No more long, messy `go test ./...` flags.
+
+```bash
+godev test unit           # Run unit tests
+godev test unit -v        # Run unit tests with verbose output
+godev test unit -c        # Run unit tests with coverage and save the cover profile
+godev test unit --html    # Run unit tests with coverage and open report in your browser
+godev test integ          # Run integration tests
 ```
 
-## Project Structure 📁
+## 📁 Project Structure
 
 When you initialize a new project, godev creates:
 
@@ -77,14 +95,14 @@ myproject/
 ├── .vscode/
 │   ├── extensions.json    # Recommended VS Code extensions
 │   ├── launch.json        # Debug configuration
-│   └── settings.json      # VS Code settings
+│   └── settings.json      # Recommended VS Code settings
 ├── .gitignore             # Git ignore rules
-├── .golangci.yml         # Linting configuration
+├── .golangci.yml          # Linting configuration
 ├── go.mod                 # Go module file
 └── README.md              # Project documentation
 ```
 
-## Commands Reference 📖
+## 📚 Commands Reference
 
 | Command | Description | Example |
 |---------|-------------|---------|
@@ -94,17 +112,18 @@ myproject/
 | `godev test unit` | Run unit tests | `godev test unit` |
 | `godev test integ` | Run integration tests | `godev test integ` |
 
-## Development Tools Integration 🔧
+## 🔧 Development Tools Integration
 
-godev automatically sets up and recommends these essential Go development tools:
+`godev` automatically set up and recommend these essential Go development tools:
 
 - **[gofumpt](https://github.com/mvdan/gofumpt)**: Enhanced Go formatter
 - **[goimports](https://golang.org/x/tools/cmd/goimports)**: Automatic import management
 - **[golangci-lint-v2](https://golangci-lint.run/)**: Fast Go linters runner
 
-## Configuration ⚙️
+## ⚙️ Configuration
 
 ### VS Code Integration
+
 The generated `.vscode/settings.json` includes:
 - Go extension configuration
 - Format on save with gofumpt
@@ -112,33 +131,35 @@ The generated `.vscode/settings.json` includes:
 - Linting integration
 
 ### Linting Configuration
+
 The `.golangci.yml` file provides:
 - Comprehensive linter rules
 - Performance optimizations
 - Custom rule configurations
 
-## Architecture 🏗️
+## 🏗️ Project Architecture
 
 The project follows a clean architecture:
 
 ```
 godev/
-├── cmd/                    # CLI commands
+├── cmd/                 # CLI commands
 │   ├── root.go          # Root command setup
 │   ├── init.go          # Project initialization
 │   ├── doctor.go        # Environment diagnostics
+│   ├── tools.go         # Go tools management
 │   └── test.go          # Testing commands
-├── internal/             # Internal packages
-│   ├── osutil/          # OS utilities
+├── internal/            # Internal packages
+│   ├── osutil/          # OS utilities (filesystem, exec, etc.)
 │   ├── strconst/        # String constants
-│   └── tui/             # Terminal UI utilities
-├── template/             # Project templates
+│   └── tui/             # Terminal UI utilities (colorized output, etc.)
+├── template/            # Preset project templates
 └── main.go              # Application entry point
 ```
 
 ## Contributing 🤝
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome and appreciate contributions ❤️
 
 ### Development Setup
 1. Fork the repository
@@ -150,42 +171,11 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 7. Push to the branch: `git push origin feature/amazing-feature`
 8. Open a Pull Request
 
-## Testing 🧪
-
-Run the test suite:
-```bash
-# Run all tests
-go test ./...
-
-# Run tests with coverage
-go test -cover ./...
-
-# Run benchmarks
-go test -bench=. ./...
-
-# Run tests verbosely
-go test -v ./...
-```
-
-## Dependencies 📚
-
-- [Cobra](https://github.com/spf13/cobra): CLI framework
-- [Lipgloss](https://github.com/charmbracelet/lipgloss): Terminal styling
-- [golang.org/x/mod](https://golang.org/x/mod): Go module utilities
-
-## License 📄
-
-This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
-
-## Support 💬
+## 💬 Support
 
 - 🐛 Issues: [GitHub Issues](https://github.com/thought2code/godev/issues)
 - 🔧 Pull Requests: [Pull Requests](https://github.com/thought2code/godev/pulls)
 
-## Changelog 📝
+## 📄 License
 
-See [CHANGELOG.md](CHANGELOG.md) for a list of changes.
-
----
-
-**Made with ❤️ by [Thought2Code](https://thought2code.com)**
+This project is licensed under the Apache 2.0 License - see the [LICENSE](https://github.com/thought2code/godev/blob/main/LICENSE) file for details.
